@@ -10,8 +10,7 @@ asynchronous functions and dependency graphs.
 * **Task** – An atomic unit of work representing an API call or computation.
 * **Workflow** – A composition of tasks with dependencies between them.  The orchestrator
   ensures tasks run in the correct order and propagates results to downstream tasks.
-* **Async execution** – All tasks are asynchronous functions executed concurrently where
-  possible.
+* **Async execution** – The runner awaits asynchronous functions in dependency order. Shared task instances reuse their successful result, including `None`.
 
 ## Example
 
@@ -20,16 +19,15 @@ CRM API, enriches it using a mock enrichment service, and posts the result to a 
 system.  Run the example with:
 
 ```bash
-pip install -r requirements.txt
 python orchestrator.py
 ```
 
 You should see the orchestrator execute the tasks in the proper sequence and print the
-results.
+results. The mock billing step prints `Billing record created for Jane Doe`.
 
 ## Extending
 
-To use this orchestrator in your own projects, subclass `Task` to implement your API calls
+To use this orchestrator in your own projects, pass async callables to `Task`
 and construct a `Workflow` by specifying task dependencies.  Real‑world orchestrators may
 use frameworks like Apache Airflow or Prefect for more advanced features; this example is
 designed to illustrate the underlying concepts in a lightweight way.

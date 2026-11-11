@@ -25,15 +25,17 @@ class Task:
         self.coro = coro
         self.dependencies = dependencies or []
         self.result: Any = None
+        self._completed = False
 
     async def run(self) -> Any:
         """Run the task after ensuring dependencies have completed."""
+        if self._completed:
+            return self.result
         # Wait on dependencies
         for dep in self.dependencies:
             await dep.run()
-        if self.result is not None:
-            return self.result
         self.result = await self.coro(*(dep.result for dep in self.dependencies))
+        self._completed = True
         return self.result
 
 
@@ -61,8 +63,7 @@ async def fetch_user() -> Dict[str, Any]:
 async def enrich_user(user: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0.1)
     # Add a fake enrichment field
-    user["loyalty_score"] = 0.9
-    return user
+    return {**user, "loyalty_score": 0.9}
 
 
 async def post_billing(user: Dict[str, Any]) -> str:
